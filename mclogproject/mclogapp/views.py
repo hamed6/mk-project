@@ -1,5 +1,7 @@
+
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+
 
 from rest_framework.views import APIView
 
@@ -14,6 +16,16 @@ class LogFileProcess(APIView):
     def __init__(self) -> None:
         pass
     
+    def post(self, request):
+        if (request.FILES):
+            f=list(request.FILES.keys())
+            print(f)
+            for i in request.FILES:
+                self.show_file_content(request.FILES[i])
+                # print (i)
+            return HttpResponse("file received")
+        else:
+            return HttpResponse("file is not valid")
     
     def read_file(self,file):
         imo = imo
@@ -36,9 +48,9 @@ class LogFileProcess(APIView):
             self.create_db(imo)
         
 
-    def show_file_content(self):
-        # return json file content with proper format
-        pass
+    def show_file_content(self, file):
+        for chunk in file.chunks():
+            print('--------',chunk)
 
 class TransferringFile():
      # write dynamic sql here
