@@ -6,10 +6,10 @@ from django.shortcuts import redirect, render
 
 from rest_framework.views import APIView
 from .forms import UploadLogFile
-from .models import ShipDetails
+from .models import ShipDetails, ShipLogs
 
 import csv
-
+import datetime as dt
 
 #----------------------------------------------------------
 def index(request):
@@ -30,11 +30,26 @@ class LogFileProcess(APIView):
             csv_file=request.FILES["csv_file"]
             file_data=csv_file.read().decode("utf-8")
             lines=file_data.split("\n")
+
+            get_ship=ShipDetails.objects.get(shipImo=2)
+            
             for line in lines:
-                # fields=line.split(';')
-                print(line)
-                # print(fields[1])
-                # print(fields[2])
+                if "Time" not in line: # Or remove the first line of each log file 
+                    field=line.split(';')
+                    dd=field[0].split(' ')
+                    correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
+                    correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
+                    
+                    shiplogtable=ShipLogs(
+                    logImo=get_ship
+                    , logDate=correct_date
+                    , logTime=correct_time
+                    , logCategory=field[1]
+                    , logDescription=field[2]
+                    # , logExtranote=field[1]
+                    )
+                    shiplogtable.save()
+
             return HttpResponse("file received")
             # return HttpResponseRedirect( 'mclogapp/report.html')
         else:
