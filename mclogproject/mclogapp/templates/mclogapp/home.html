@@ -10,7 +10,7 @@
 </head>
 <body>
     <div>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <label>IMO</label>
             <input type="number">

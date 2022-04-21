@@ -15,9 +15,9 @@ class ShipLogs(models.Model):
     logImo=models.ForeignKey(ShipDetails, on_delete=models.CASCADE)
     logDate=models.DateField()
     logTime=models.TimeField()
-    logCategory=models.CharField(max_length=10)
+    logCategory=models.CharField(max_length=25)
     logDescription=models.CharField(max_length=100)
-    logExtranote=models.CharField(max_length=50)
+    logExtranote=models.CharField(max_length=100)
     
     class Meta:
         ordering=['logDate']
