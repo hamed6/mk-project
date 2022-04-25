@@ -1,13 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+// import App from './App';
+import  './compnents/GeneralView/ShipDetails'
 import reportWebVitals from './reportWebVitals';
+import GeneralView from './compnents/GeneralView/ShipDetails';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <GeneralView />
   </React.StrictMode>
 );
 
