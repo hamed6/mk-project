@@ -4,7 +4,9 @@ import './index.css';
 // import App from './App';
 import  './compnents/GeneralView/ShipDetails'
 import reportWebVitals from './reportWebVitals';
+
 import GeneralView from './compnents/GeneralView/ShipDetails';
+import 'bootstrap/dist/css/bootstrap.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
