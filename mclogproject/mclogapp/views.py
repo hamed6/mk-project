@@ -24,11 +24,12 @@ class LogFileProcess(APIView):
     def post(self, request):
         if (request.FILES):
             # get_file_name=list(request.FILES.keys())
-            # Only one file is supposed to be uploaded, so [0] will do the job
-            # 
-            # self.show_file_content(request.FILES[get_file_name[0]])
+            """
+             Only one file is supposed to be uploaded, so [0] will do the job
+            """
+            # self.save_log_file(request.FILES[get_file_name[0]])
             file=request.FILES["csv_file"]
-            self.show_file_content(file)
+            self.save_log_file(file)
 
             return HttpResponse("file received")
             # return HttpResponseRedirect( 'mclogapp/report.html')
@@ -40,7 +41,7 @@ class LogFileProcess(APIView):
         form=UploadLogFile
         return render(request, 'mclogapp/home.html', {'form':form})
     
-    def show_file_content(self, file):
+    def save_log_file(self, file):
             file_data=file.read().decode("utf-8")
             lines=file_data.split("\n")
             lines.remove("")
@@ -48,8 +49,8 @@ class LogFileProcess(APIView):
             get_ship_object=ShipDetails.objects.get(shipImo=2)
             
             for line in lines:
-                print(line)
-                if "Time;Class" not in line: # Or remove the first line of each log file 
+                """Or remove the first line of each log file""" 
+                if "Time;Class" not in line: 
                     field=line.split(';')
                     # field=line.strip()
                     dd=field[0].split(' ')
@@ -73,12 +74,8 @@ class LogFileProcess(APIView):
                 # print('--------',chunk)
 
     def read_file(self,file):
-        imo = imo
-        self.search_ship(imo, file)
         pass
     
-    def insert_to_db(records):
-        pass
 
     def create_db(shipinfo):
 
@@ -106,20 +103,46 @@ class LogFileProcess(APIView):
         pass
     
     def search_ship(self, imo, file):
-        
         try:
-            shipFound = ShipDetails.objects.get(shipImo = imo)
+            ship_found = ShipDetails.objects.get(shipImo = imo)
             self.insert_to_db(file)
 
         except ObjectDoesNotExist:
             self.create_db(imo)
         
 
-#----------------------------------------------------------
-class TransferringFile():
-     # write dynamic sql here
-    def import_file_to_db():
-        pass
 
 #----------------------------------------------------------
-# presentation structure 
+class SearchShipDetails(APIView):
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+
+    def get(self, imo):
+        """
+        find ship with give IMO from all IMO tables, 
+        then make direct query to group by date.
+        Return date by month.
+        """
+        ship_log_object=ShipLogs.objects.get(logImo=imo)
+
+        return (ship_log_object)
+    
+
+    def system_downtime(self):
+        pass
+
+    def operating_to_extend_open_position(self):
+        pass
+
+    def calibration_mismatch(self):
+        pass
+
+    def motor_stalled_fault_manual_mode(self):
+        pass
+
+    def pushing_against_panels(self):
+        pass
+
+    def motor_heating_duration(self):
+        pass
