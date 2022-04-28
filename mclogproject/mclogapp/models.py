@@ -17,7 +17,7 @@ class ShipLogs(models.Model):
     logTime=models.TimeField()
     logCategory=models.CharField(max_length=25)
     logDescription=models.CharField(max_length=100)
-    logExtranote=models.CharField(max_length=100)
+    # logExtranote=models.CharField(max_length=100)
     
     class Meta:
         ordering=['logDate']

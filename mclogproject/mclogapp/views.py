@@ -2,7 +2,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, render
-
+from django.db import connection
 
 from rest_framework.views import APIView
 from .forms import UploadLogFile
@@ -56,14 +56,16 @@ class LogFileProcess(APIView):
                     dd=field[0].split(' ')
                     correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
                     correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
-                    
+                    tranlate_date=dt.datetime.strptime(field[0],'%d.%m.%Y %H:%M:%S' )
+                    format_date=dt.datetime.strftime(tranlate_date, '%Y.%m.%d %H:%M:%S ')
+                
                     shiplogtable=ShipLogs(
                     logImo=get_ship_object
                     , logDate=correct_date
                     , logTime=correct_time
                     , logCategory=field[1]
                     , logDescription=field[2]
-                    , logExtranote=field[3]
+                    # , logExtranote=field[3]
                     )
                     shiplogtable.save()
             # pd.read_csv(link, skiprows=2)
@@ -114,8 +116,8 @@ class LogFileProcess(APIView):
 
 #----------------------------------------------------------
 class SearchShipDetails(APIView):
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
+    def __init__(self):
+        pass
 
 
     def get(self, imo):
@@ -130,7 +132,10 @@ class SearchShipDetails(APIView):
     
 
     def system_downtime(self):
-        pass
+        with connection.cursor() as c:
+            c.execute('SELECT * FROM db_example.shipapp_ships;')
+            print(c.fetchall())
+        return HttpResponse("fixed")
 
     def operating_to_extend_open_position(self):
         pass
