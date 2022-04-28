@@ -45,29 +45,31 @@ class LogFileProcess(APIView):
             file_data=file.read().decode("utf-8")
             lines=file_data.split("\n")
             lines.remove("")
-            print(lines)
+            del lines[0]
+            # print(lines)
             get_ship_object=ShipDetails.objects.get(shipImo=2)
             
             for line in lines:
-                """Or remove the first line of each log file""" 
-                if "Time;Class" not in line: 
-                    field=line.split(';')
-                    # field=line.strip()
-                    dd=field[0].split(' ')
-                    correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
-                    correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
-                    tranlate_date=dt.datetime.strptime(field[0],'%d.%m.%Y %H:%M:%S' )
-                    format_date=dt.datetime.strftime(tranlate_date, '%Y.%m.%d %H:%M:%S ')
+                # """Or remove the first line of each log file""" 
+                # if "Time;Class" not in line: 
+                field=line.split(';')
+                # field=line.strip()
+                # dd=field[0].split(' ')
+                # correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
+                # correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
+                translate_date=dt.datetime.strptime(field[0],'%d.%m.%Y %H:%M:%S' )
+                format_date=dt.datetime.strftime(translate_date, '%Y-%m-%d %H:%M:%S')
                 
-                    shiplogtable=ShipLogs(
-                    logImo=get_ship_object
-                    , logDate=correct_date
-                    , logTime=correct_time
-                    , logCategory=field[1]
-                    , logDescription=field[2]
-                    # , logExtranote=field[3]
-                    )
-                    shiplogtable.save()
+                shiplogtable=ShipLogs(
+                logImo=get_ship_object
+                # , logDate=correct_date
+                # , logTime=correct_time
+                , logDateTime=format_date
+                , logCategory=field[1]
+                , logDescription=field[2]
+                # , logExtranote=field[3]
+                )
+                shiplogtable.save()
             # pd.read_csv(link, skiprows=2)
             # file_content=list(file)
             # for row in file_content:
