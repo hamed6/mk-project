@@ -1,3 +1,4 @@
+import datetime as dt
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,7 +10,7 @@ from .forms import UploadLogFile
 from .models import ShipDetails, ShipLogs
 
 
-import datetime as dt
+
 
 #----------------------------------------------------------
 def index(request):
@@ -46,12 +47,9 @@ class LogFileProcess(APIView):
             lines=file_data.split("\n")
             lines.remove("")
             del lines[0]
-            # print(lines)
             get_ship_object=ShipDetails.objects.get(shipImo=2)
             
-            for line in lines:
-                # """Or remove the first line of each log file""" 
-                # if "Time;Class" not in line: 
+            for line in lines: 
                 field=line.split(';')
                 # field=line.strip()
                 # dd=field[0].split(' ')
@@ -62,11 +60,11 @@ class LogFileProcess(APIView):
                 
                 shiplogtable=ShipLogs(
                 logImo=get_ship_object
-                # , logDate=correct_date
-                # , logTime=correct_time
                 , logDateTime=format_date
                 , logCategory=field[1]
                 , logDescription=field[2]
+                # , logDate=correct_date
+                # , logTime=correct_time
                 # , logExtranote=field[3]
                 )
                 shiplogtable.save()
@@ -82,30 +80,27 @@ class LogFileProcess(APIView):
     
 
     def create_db(shipinfo):
-
         """
-                from django.db import connection
+        from django.db import connection
 
-                # Create a connection with your database
-                cursor = connection.cursor()
+        # Create a connection with your database
+        cursor = connection.cursor()
 
-                # Execute your raw SQL
-                cursor.execute("CREATE TABLE NameTable(name varchar(255));")
-                # Create database records
-                cursor.execute("INSERT INTO NameTable VALUES('ExampleName')")
-                # Fetch records from the database
-                cursor.execute("SELECT * FROM NameTable")
+        # Execute your raw SQL
+        cursor.execute("CREATE TABLE NameTable(name varchar(255));")
+        # Create database records
+        cursor.execute("INSERT INTO NameTable VALUES('ExampleName')")
+        # Fetch records from the database
+        cursor.execute("SELECT * FROM NameTable")
 
-                # Get the data from the database. fetchall() can be used if you would like to get multiple rows
-                name = cursor.fetchone()
+        # Get the data from the database. fetchall() can be used if you would like to get multiple rows
+        name = cursor.fetchone()
 
-                # Manipulate data
-                # Don't forget the close database connection
-                cursor.close()
-
+        # Manipulate data
+        # Don't forget the close database connection
+        cursor.close()
         """
         pass
-    
     def search_ship(self, imo, file):
         try:
             ship_found = ShipDetails.objects.get(shipImo = imo)
@@ -118,9 +113,13 @@ class LogFileProcess(APIView):
 
 #----------------------------------------------------------
 class SearchShipDetails(APIView):
+
+    # def get_table_name(self):
+    #     table_name='mclog_db.mclogapp_shipdetails'
+    #     return table_name
+
     def __init__(self):
         pass
-
 
     def get(self, imo):
         """
@@ -129,15 +128,21 @@ class SearchShipDetails(APIView):
         Return date by month.
         """
         ship_log_object=ShipLogs.objects.get(logImo=imo)
-
         return (ship_log_object)
     
 
     def system_downtime(self):
+        query=("""select TIMESTAMPDIFF(hour, logDateTime, 
+                str_to_date( substring(logDescription, 36,19 ),
+                "%d.%m.%Y %H:%i:%s" ) ), logDateTime, 
+                str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" )
+                from  mclog_db.mclogapp_shiplogs  
+                where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)
         with connection.cursor() as c:
-            c.execute('SELECT * FROM db_example.shipapp_ships;')
+            c.execute(query)
             print(c.fetchall())
         return HttpResponse("fixed")
+
 
     def operating_to_extend_open_position(self):
         pass
