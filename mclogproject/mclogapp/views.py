@@ -1,10 +1,12 @@
 import datetime as dt
 
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import redirect, render
+from django.shortcuts import render
 from django.db import connection
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from .forms import UploadLogFile
 from .models import ShipDetails, ShipLogs
@@ -41,6 +43,7 @@ class LogFileProcess(APIView):
     def get(self, request):
         form=UploadLogFile
         return render(request, 'mclogapp/home.html', {'form':form})
+    
     
     def save_log_file(self, file):
             file_data=file.read().decode("utf-8")
@@ -130,7 +133,7 @@ class SearchShipDetails(APIView):
         ship_log_object=ShipLogs.objects.get(logImo=imo)
         return (ship_log_object)
     
-
+    @api_view(('GET',))
     def system_downtime(self):
         query=("""select TIMESTAMPDIFF(hour, logDateTime, 
                 str_to_date( substring(logDescription, 36,19 ),
@@ -140,8 +143,8 @@ class SearchShipDetails(APIView):
                 where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)
         with connection.cursor() as c:
             c.execute(query)
-            print(c.fetchall())
-        return HttpResponse("fixed")
+            c=c.fetchall()
+        return Response (c)
 
 
     def operating_to_extend_open_position(self):

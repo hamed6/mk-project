@@ -1,7 +1,18 @@
 import React from 'react'
 import { ReactDOM } from 'react'
 import './ShipDetails.css'
+import 'axios'
+import axios from 'axios'
 
+function GetShipByImo(props){
+        // GET request - ship by imo 
+        // Return data
+        axios.get('http://127.0.0.1:8000/search')
+        .then((response)=>{
+            console.log(response);
+        })
+
+}
 
 class GeneralView extends React.Component{
     render(){
@@ -22,9 +33,13 @@ class GeneralView extends React.Component{
                             <label>
                                 Ship Name
                             </label>
-                            <select name='IMO'>
+                            <select name='Ship name'>
                                 <option>From db</option>
                             </select>
+                        </div>
+
+                        <div>
+                            <button>Get Ship</button>
                         </div>
                         <div>
                             <label>
@@ -60,6 +75,9 @@ class GeneralView extends React.Component{
                         <p>
                             Placeholder for the chart
                         </p>
+                        <div>
+                            <GetShipByImo/>
+                        </div>
                      </div>
                 </div>
             </div>
