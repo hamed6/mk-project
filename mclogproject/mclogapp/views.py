@@ -140,14 +140,38 @@ class SearchShipDetails(APIView):
                 str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" )
                 from  mclog_db.mclogapp_shiplogs  
                 where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)
-        with connection.cursor() as c:
-            c.execute(query)
-            c=c.fetchall()
-        return Response (c)
+        with connection.cursor() as curs:
+            curs.execute(query)
+            curs=curs.fetchall()
+        return Response (curs)
 
-
+    @api_view(('GET',))
     def operating_to_extend_open_position(self):
-        pass
+        query=("""
+            with opp AS 
+            (
+            select *, substr( logDescription ,1,4) as "hcid"
+            from mclog_db.mclogapp_shiplogs   
+            where logCategory = 'Info'  and logDescription like '%Stopped automatic mode open position' 
+            ) 
+            , exp as (
+            select *, substr( logDescription ,1,4) as "hcid"
+            from mclog_db.mclogapp_shiplogs   
+            where logCategory = 'Info'  and logDescription like  '%ext open position' 
+            )
+
+            select (
+            select count(*) from opp, exp where opp.hcid = exp.hcid and TIMESTAMPDIFF( minute, opp.logDateTime, exp.logDateTime) between 0 and 15 
+            ) as "Driving directly < 15mins", 
+            (
+            select count(*) from opp, exp where opp.hcid = exp.hcid and TIMESTAMPDIFF( minute, opp.logDateTime, exp.logDateTime) >16 
+            ) as "leaving panel in open position > 15mins"
+            ;
+        """)
+        with connection.cursor() as curs:
+            curs.execute(query)
+        print(curs)
+        return Response(curs)
 
     def calibration_mismatch(self):
         pass
