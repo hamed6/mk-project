@@ -130,14 +130,13 @@ class SearchShipDetails(APIView):
         then make direct query to group by date.
         Return date by month.
         """
-        ship_log_object=ShipLogs.objects.get(logImo=imo)
-        return (ship_log_object)
+        return Response("hey")
     
     @api_view(('GET',))
     def system_downtime(self):
         query=("""select TIMESTAMPDIFF(hour, logDateTime, 
-                str_to_date( substring(logDescription, 36,19 ),
-                "%d.%m.%Y %H:%i:%s" ) ), logDateTime, 
+                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ) )
+                , logDateTime, 
                 str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" )
                 from  mclog_db.mclogapp_shiplogs  
                 where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)

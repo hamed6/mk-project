@@ -1,7 +1,5 @@
-import React, {Component} from 'react'
-import { ReactDOM } from 'react'
+import React from 'react'
 import './ShipDetails.css'
-import 'axios'
 import axios from 'axios'
 
 
@@ -9,14 +7,17 @@ class GeneralView extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            shipResponse:[1,2,3],
+            shipResponse:[],
         }
     };
 
     componentDidMount(){
         axios.get('http://127.0.0.1:8000/search')
         .then((response)=>
-            this.setState=({shipResponse: response.data})
+            {
+                this.setState({shipResponse: response.data
+                }
+            )}
         )
     };
 
@@ -90,7 +91,7 @@ class GeneralView extends React.Component{
             
             <div>
                 {this.state.shipResponse.map((res)=>(
-                        <p>{res}</p>
+                        <p key={this.state.shipResponse.indexOf(res)} >{res.toString()}</p>
                     ))
                     }
             </div>
