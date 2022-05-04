@@ -23,8 +23,6 @@ class GeneralView extends React.Component{
                 this.setState({shipNames: response.data
                 });
             })
-        .then(console.log(this.shipNames))
-        
     };
 
     // downtime(){
@@ -69,7 +67,11 @@ class GeneralView extends React.Component{
                                 Ship Name
                             </label>
                             <select name='Ship name'>
-                                <option>From db</option>
+                                {
+                                    this.state.shipNames.map((name)=>(
+                                        <option key={name}>{name}</option>
+                                    ))
+                                }
                             </select>
                         </div>
 
