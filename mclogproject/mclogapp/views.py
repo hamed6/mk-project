@@ -134,10 +134,8 @@ class SearchShipDetails(APIView):
 
     @api_view(('GET',))
     def ship_names(self):
-        ship_found = ShipDetails.objects.all()
-        serializer=CheckImoSerializer(ship_found, many=True)
-        print('-------',serializer.data)
-        return Response(serializer.data)
+        ship_found =[ship.shipName for ship in  ShipDetails.objects.all()]
+        return Response(ship_found)
 
     @api_view(('GET',))
     def system_downtime(self):
