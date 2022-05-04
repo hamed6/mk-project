@@ -3,22 +3,50 @@ import './ShipDetails.css'
 import axios from 'axios'
 
 
+const baseURL="http://127.0.0.1:8000"
+
 class GeneralView extends React.Component{
     constructor(props){
         super(props);
         this.state={
             shipResponse:[],
-        }
+            shipScenario:"",
+            shipNames:[],
+        };
+        
+        this.handleChange=this.handleChange.bind(this);
+    };
+    
+    componentDidMount(){
+        axios.get(`${baseURL}`)
+        .then((response)=> {
+                this.setState({shipNames: response.data
+                });
+            })
+        .then(console.log(this.shipNames))
+        
     };
 
-    componentDidMount(){
-        axios.get('http://127.0.0.1:8000/search')
-        .then((response)=>
-            {
-                this.setState({shipResponse: response.data
-                }
-            )}
-        )
+    // downtime(){
+    //     axios.get(`${baseURL}/downtime`)
+    //     .then((response)=>{
+    //         this.setState({shipResponse:response.data})
+    //     })
+    // };
+
+    // extendOpenPosition(){
+    //     axios.get(`${baseURL}/extendopen`)
+    //     .then((response)=>{
+    //         this.setState({shipResponse:response.data})
+    //     })
+    // };
+
+    handleChange(event){
+        this.setState({shipScenario:event.target.value});
+        axios.get(`${baseURL}/${this.state.shipScenario}`)
+        .then((response)=>{
+            this.setState({shipResponse:response.data})
+        })
     };
 
     render(){
@@ -71,8 +99,10 @@ class GeneralView extends React.Component{
                     <label>
                         Scenario query
                     </label>
-                    <select name='Scenario'>
-                        <option>From db</option>
+                    <select name='Scenario' value={this.state.shipScenario} onChange={this.handleChange}>
+                        
+                        <option value="downtime">System downtime</option>
+                        <option value="extendopen">Extend open position</option>
                     </select>
                     </div>
 

@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .forms import UploadLogFile
 from .models import ShipDetails, ShipLogs
-
+from .serializers import CheckImoSerializer
 
 
 
@@ -124,14 +124,21 @@ class SearchShipDetails(APIView):
     def __init__(self):
         pass
 
-    def get(self, imo):
+    # def get(self, imo):
         """
         find ship with give IMO from all IMO tables, 
         then make direct query to group by date.
         Return date by month.
         """
-        return Response("hey")
-    
+        # pass
+
+    @api_view(('GET',))
+    def ship_names(self):
+        ship_found = ShipDetails.objects.all()
+        serializer=CheckImoSerializer(ship_found, many=True)
+        print('-------',serializer.data)
+        return Response(serializer.data)
+
     @api_view(('GET',))
     def system_downtime(self):
         query=("""select TIMESTAMPDIFF(hour, logDateTime, 

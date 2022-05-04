@@ -7,6 +7,7 @@ class ShipDetails(models.Model):
     # shiplogFile=models.FileFielde()
     # last file uploaded date, name 
     # project number, hall number, any details about mck
+    
     def __str__(self):
         return self.shipName
 

@@ -5,4 +5,4 @@ from .models import ShipDetails
 class CheckImoSerializer(serializers.Serializer):
     class Meta:
         model= ShipDetails
-        fields=['shipImo']
+        fields=['shipImo', 'shipName']
