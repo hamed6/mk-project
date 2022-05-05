@@ -121,10 +121,6 @@ class GeneralView extends React.Component{
                                 }
                             </select>
                         </div>
-
-                        {/* <div className='p-2 g-1 border bg-light'>
-                            <button>Get Ship</button>
-                        </div> */}
                     
                     <div className='p-2 g-1 border bg-light'>
                         <label>
@@ -167,15 +163,15 @@ class GeneralView extends React.Component{
                  
                         
                     <div className='p-2 g-1 border bg-light'>
-                    <BarChart width={800} height={250} data={this.state.data}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="pv" fill="#8884d8" />
-                        <Bar dataKey="uv" fill="#82ca9d" />
-                    </BarChart>
+                        <BarChart width={800} height={250} data={this.state.data}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="name" />
+                            <YAxis />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="pv" fill="#8884d8" />
+                            <Bar dataKey="uv" fill="#82ca9d" />
+                        </BarChart>
                     </div>
 
                     
