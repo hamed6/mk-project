@@ -50,7 +50,7 @@ class LogFileProcess(APIView):
             lines=file_data.split("\n")
             lines.remove("")
             del lines[0]
-            get_ship_object=ShipDetails.objects.get(shipImo=2)
+            get_ship_object=ShipDetails.objects.get(shipImo=9838840)
             
             for line in lines: 
                 field=line.split(';')
@@ -66,9 +66,6 @@ class LogFileProcess(APIView):
                 , logDateTime=format_date
                 , logCategory=field[1]
                 , logDescription=field[2]
-                # , logDate=correct_date
-                # , logTime=correct_time
-                # , logExtranote=field[3]
                 )
                 shiplogtable.save()
             # pd.read_csv(link, skiprows=2)
@@ -175,7 +172,6 @@ class SearchShipDetails(APIView):
         """)
         with connection.cursor() as curs:
             curs.execute(query)
-        print(curs)
         return Response(curs)
 
     def calibration_mismatch(self):
