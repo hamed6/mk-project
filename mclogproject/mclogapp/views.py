@@ -174,6 +174,7 @@ class SearchShipDetails(APIView):
             curs.execute(query)
         return Response(curs)
 
+
     def calibration_mismatch(self):
         pass
 
