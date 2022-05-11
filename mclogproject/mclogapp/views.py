@@ -118,7 +118,8 @@ class SearchShipDetails(APIView):
     #     table_name='mclog_db.mclogapp_shipdetails'
     #     return table_name
 
-    def __init__(self):
+    def __init__(self, create_cursor):
+        self.create_cursor=create_cursor
         pass
 
     # def get(self, imo):
@@ -134,20 +135,29 @@ class SearchShipDetails(APIView):
         ship_found =[ship.shipName for ship in  ShipDetails.objects.all()]
         return Response(ship_found)
 
-    @api_view(('GET',))
-    def system_downtime(self):
-        query=("""select TIMESTAMPDIFF(hour, logDateTime, 
-                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ) )
-                , logDateTime, 
-                str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" )
-                from  mclog_db.mclogapp_shiplogs  
-                where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)
+
+
+        
+    def create_cursor(query):
         with connection.cursor() as curs:
             curs.execute(query)
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
-            
+        return (result)
+
+    @api_view(('GET',))
+    def system_downtime(self):
+        query=("""select TIMESTAMPDIFF(hour,  
+                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) as "System was down in hour" ,
+                logDateTime as "System start" , 
+                str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" ) as "System shutdown"
+                from  mclog_db.mclogapp_shiplogs  
+                where logCategory = 'Info' and logDescription like'PLC Powered ON%' and  TIMESTAMPDIFF(hour,  
+                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) >1; """)
+        
+        result=SearchShipDetails.create_cursor(query)
         return Response (result)
+
 
     @api_view(('GET',))
     def operating_to_extend_open_position(self):
@@ -166,23 +176,35 @@ class SearchShipDetails(APIView):
 
             select (
             select count(*) from opp, exp where opp.hcid = exp.hcid and TIMESTAMPDIFF( minute, opp.logDateTime, exp.logDateTime) between 0 and 15 
-            ) as "Driving directly < 15mins", 
+            ) as "Nummber of driving directly within 15mins", 
             (
             select count(*) from opp, exp where opp.hcid = exp.hcid and TIMESTAMPDIFF( minute, opp.logDateTime, exp.logDateTime) >16 
-            ) as "leaving panel in open position > 15mins"
+            ) as "Number of leaving panel in open position longer than 15mins"
             ;
         """)
-        # with connection.cursor() as curs:
-            # curs.execute(query)
-        curs=connection.cursor()
-        curs.execute(query) 
-        columns=[col[0] for col in curs.description]    
-        result=[ zip(columns,  row)  for row in curs.fetchall()]
+        result=SearchShipDetails.create_cursor(query)
         return Response(result)
 
-
+    @api_view(('GET',))
     def calibration_mismatch(self):
-        pass
+        query=("""
+        select  *, clstarted.`Calibration started` - cldone.`Calibration done`   as "Incomplete calibration" from 
+            (
+            select substr(logDescription, 1,4) as HachcoverID, count(logDescription) as "Calibration started" 
+            from mclog_db.mclogapp_shiplogs 
+            where logCategory="Info" and logDescription like "%calibration started%" group by logDescription
+            )  as clstarted
+            join 
+            (
+            select substr(logDescription, 1,4) as HachcoverID, count(logDescription) as "Calibration done" 
+            from mclog_db.mclogapp_shiplogs 
+            where logCategory="Info" and logDescription like "%calibration done%" group by logDescription
+            ) as cldone
+            on clstarted.HachcoverID = cldone.HachcoverID
+            order by 1;
+        """)
+        result=SearchShipDetails.create_cursor(query)
+        return Response (result)
 
     def motor_stalled_fault_manual_mode(self):
         pass
