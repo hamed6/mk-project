@@ -144,8 +144,10 @@ class SearchShipDetails(APIView):
                 where logCategory = 'Info' and logDescription like'PLC Powered ON%' """)
         with connection.cursor() as curs:
             curs.execute(query)
-            curs=curs.fetchall()
-        return Response (curs)
+            columns=[col[0] for col in curs.description]
+            result=[ zip(columns,  row)  for row in curs.fetchall()]
+            
+        return Response (result)
 
     @api_view(('GET',))
     def operating_to_extend_open_position(self):
@@ -170,9 +172,13 @@ class SearchShipDetails(APIView):
             ) as "leaving panel in open position > 15mins"
             ;
         """)
-        with connection.cursor() as curs:
-            curs.execute(query)
-        return Response(curs)
+        # with connection.cursor() as curs:
+            # curs.execute(query)
+        curs=connection.cursor()
+        curs.execute(query) 
+        columns=[col[0] for col in curs.description]    
+        result=[ zip(columns,  row)  for row in curs.fetchall()]
+        return Response(result)
 
 
     def calibration_mismatch(self):
