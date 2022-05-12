@@ -105,6 +105,9 @@ class GeneralView extends React.Component{
             <div className="container">
                 <div className="row align-items-center p-2">
                     <div className="col">
+                        <div className='p-2 g-1 border bg-success bg-gradient'>
+                            <h2>Log file statistics</h2>
+                        </div>
                          <div className='p-2 g-1 border bg-light'>
                             <label>
                                 Ship IMO
@@ -149,7 +152,7 @@ class GeneralView extends React.Component{
                         </select>
                     </div>
 
-                    <div className='p-2 g-1 border bg-light'>
+                    <div className='p-2 g-1 border bg-info shadow p-3 mb-1 bg-body rounded'>
                         <label>
                             Scenario query
                         </label>
@@ -157,10 +160,11 @@ class GeneralView extends React.Component{
                             <option value="downtime">System downtime</option>
                             <option value="extendopen">Extend open position</option>
                             <option value="calibration">Calibration difference</option>
+                            <option value="stall">Stall fault</option>
                         </select>
                     </div>
 
-                    <div className='p-2 g-1 border bg-light'>
+                    <div className='p-2 g-1 border shadow-sm p-3 mb-5 bg-body rounded'>
                     <ol>
                         {this.state.shipResponse.map((res)=>(
                             <li key={this.state.shipResponse.indexOf(res)} >{res.toString()}</li>    
@@ -170,7 +174,7 @@ class GeneralView extends React.Component{
                      </div>
                  
                         
-                    {/* <div className='p-2 g-1 border bg-light'>
+                    <div className='p-2 g-1 border bg-light'>
                         <BarChart width={800} height={250} data={this.state.data}>
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis dataKey="name" />
@@ -180,7 +184,7 @@ class GeneralView extends React.Component{
                             <Bar dataKey="pv" fill="#8884d8" />
                             <Bar dataKey="uv" fill="#82ca9d" />
                         </BarChart>
-                    </div> */}
+                    </div>
 
                     
 

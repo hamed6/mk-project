@@ -10,13 +10,22 @@
 </head>
 <body>
     <div>
+        <div>
+            <h1>Upload CSV log files</h1>
+        </div>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <label>IMO</label>
-            <input type="number">
-            <label>Name</label>
-            <input type="text">
-            <input type="file"  name="csv_file" id="csv_file">
+            <div>
+                <label>IMO </label>
+                <input type="number" required> 
+            </div>
+            <div>
+                <label>Name</label>
+                <input type="text">
+            </div>
+            <div>
+                <input type="file"  name="csv_file" id="csv_file">
+            </div>            
             <!-- <input type="submit" value="Save"> -->
             <button>Upload</button>
         </form>

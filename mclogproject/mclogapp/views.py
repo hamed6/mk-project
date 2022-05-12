@@ -32,12 +32,14 @@ class LogFileProcess(APIView):
             """
             # self.save_log_file(request.FILES[get_file_name[0]])
             file=request.FILES["csv_file"]
-            self.save_log_file(file)
-
-            return HttpResponse("file received")
+            try:
+                self.save_log_file(file)
+                return HttpResponse("file received")
+            except:
+                return HttpResponse ("File format is not valid")
             # return HttpResponseRedirect( 'mclogapp/report.html')
         else:
-            return HttpResponse("file is not valid")
+            return HttpResponse("Upload can not be empty!")
             # return HttpResponseRedirect('mclogapp/report.html')
 
     def get(self, request):
@@ -46,35 +48,36 @@ class LogFileProcess(APIView):
     
     
     def save_log_file(self, file):
-            file_data=file.read().decode("utf-8")
-            lines=file_data.split("\n")
-            lines.remove("")
-            del lines[0]
-            get_ship_object=ShipDetails.objects.get(shipImo=9838840)
+        file_data=file.read().decode("utf-8")
+        lines=file_data.split("\n")
+        lines.remove("")
+        del lines[0]
+        get_ship_object=ShipDetails.objects.get(shipImo=9838840)
+        
+        for line in lines: 
+            field=line.split(';')
+            # field=line.strip()
+            # dd=field[0].split(' ')
+            # correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
+            # correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
+            translate_date=dt.datetime.strptime(field[0],'%d.%m.%Y %H:%M:%S' )
+            format_date=dt.datetime.strftime(translate_date, '%Y-%m-%d %H:%M:%S')
             
-            for line in lines: 
-                field=line.split(';')
-                # field=line.strip()
-                # dd=field[0].split(' ')
-                # correct_date=dt.datetime.strptime(dd[0],'%d.%m.%Y')
-                # correct_time=dt.datetime.strptime(dd[1], '%H:%M:%S')
-                translate_date=dt.datetime.strptime(field[0],'%d.%m.%Y %H:%M:%S' )
-                format_date=dt.datetime.strftime(translate_date, '%Y-%m-%d %H:%M:%S')
-                
-                shiplogtable=ShipLogs(
-                logImo=get_ship_object
-                , logDateTime=format_date
-                , logCategory=field[1]
-                , logDescription=field[2]
-                )
-                shiplogtable.save()
-            # pd.read_csv(link, skiprows=2)
-            # file_content=list(file)
-            # for row in file_content:
-                # print (row)
-            # for chunk in file.chunks():
-                # print('--------',chunk)
+            shiplogtable=ShipLogs(
+            logImo=get_ship_object
+            , logDateTime=format_date
+            , logCategory=field[1]
+            , logDescription=field[2]
+            )
+            shiplogtable.save()
+        # pd.read_csv(link, skiprows=2)
+        # file_content=list(file)
+        # for row in file_content:
+            # print (row)
+        # for chunk in file.chunks():
+            # print('--------',chunk)
 
+    
     def read_file(self,file):
         pass
     
@@ -206,8 +209,24 @@ class SearchShipDetails(APIView):
         result=SearchShipDetails.create_cursor(query)
         return Response (result)
 
-    def motor_stalled_fault_manual_mode(self):
-        pass
+    @api_view(('GET',))
+    def motor_stall_fault_manual_mode(self):
+        query=("""
+        select info.closingDate  as "Fault date"
+            from(
+            select *, date(logDateTime) as closingDate 
+            from mclog_db.mclogapp_shiplogs 
+            where logCategory = "Info" and logDescription like "%Closing manual mode%" order by id
+            ) as info join (
+            select *, date(logDateTime) as stallDate  
+            from mclog_db.mclogapp_shiplogs 
+            where logCategory = "Fault" and logDescription like "%Motor stall%" order by id
+            ) as fault
+            on info.closingDate = fault.stallDate
+            group by info.closingDate order by 1;
+        """)
+        result = SearchShipDetails.create_cursor(query)
+        return Response(result)
 
     def pushing_against_panels(self):
         pass
