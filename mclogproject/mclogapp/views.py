@@ -34,9 +34,9 @@ class LogFileProcess(APIView):
             file=request.FILES["csv_file"]
             try:
                 self.save_log_file(file)
-                return HttpResponse("file received")
+                return HttpResponse("File uploaded successfully!")
             except:
-                return HttpResponse ("File format is not valid")
+                return HttpResponse ("File format is not valid!")
             # return HttpResponseRedirect( 'mclogapp/report.html')
         else:
             return HttpResponse("Upload can not be empty!")
