@@ -193,17 +193,17 @@ class SearchShipDetails(APIView):
         query=("""
         select  *, clstarted.`Calibration started` - cldone.`Calibration done`   as "Incomplete calibration" from 
             (
-            select substr(logDescription, 1,4) as HachcoverID, count(logDescription) as "Calibration started" 
+            select substr(logDescription, 1,4) as HatchcoverID, count(logDescription) as "Calibration started" 
             from mclog_db.mclogapp_shiplogs 
             where logCategory="Info" and logDescription like "%calibration started%" group by logDescription
             )  as clstarted
             join 
             (
-            select substr(logDescription, 1,4) as HachcoverID, count(logDescription) as "Calibration done" 
+            select substr(logDescription, 1,4) as HatchcoverID, count(logDescription) as "Calibration done" 
             from mclog_db.mclogapp_shiplogs 
             where logCategory="Info" and logDescription like "%calibration done%" group by logDescription
             ) as cldone
-            on clstarted.HachcoverID = cldone.HachcoverID
+            on clstarted.HatchcoverID = cldone.HatchcoverID
             order by 1;
         """)
         result=SearchShipDetails.create_cursor(query)
