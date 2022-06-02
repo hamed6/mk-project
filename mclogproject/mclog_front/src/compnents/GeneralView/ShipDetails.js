@@ -94,8 +94,8 @@ class GeneralView extends React.Component{
         })
     };
 
-    render(
-    ){
+    render()
+    {
         
         // const x=document.getElementById("listOfScenairo").selectedIndex;
         // const y=document.getElementById("listOfScenairo").options;
