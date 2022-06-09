@@ -121,8 +121,7 @@ class SearchShipDetails(APIView):
     #     table_name='mclog_db.mclogapp_shipdetails'
     #     return table_name
 
-    def __init__(self, create_cursor):
-        self.create_cursor=create_cursor
+    def __init__(self):
         pass
 
     # def get(self, imo):
@@ -132,12 +131,18 @@ class SearchShipDetails(APIView):
         Return date by month.
         """
         # pass
+    def get(self, request):
+        ships= ShipDetails.objects.all()
+        serializer=CheckImoSerializer(ships, many=True)
+        # print(ships)
+        return Response(serializer.data)
 
     @api_view(('GET',))
     def ship_names(self):
-        ship_found =ShipDetails.objects.all()
-        serializer=CheckImoSerializer(ship_found, many=True)
-        
+        # ships =[ship.shipName, ship.shipImo for ship in ShipDetails.objects.all()]
+        ships= ShipDetails.objects.all()
+        serializer=CheckImoSerializer(ships, many=True)
+        print(ships)
         return Response(serializer.data)
 
 

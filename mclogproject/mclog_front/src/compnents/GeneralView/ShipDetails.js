@@ -64,12 +64,14 @@ class GeneralView extends React.Component{
         this.handleChange=this.handleChange.bind(this);
     };
     
+    // this.setState({shipNames:response.data.shipName})
     componentDidMount(){
         axios.get(`${baseURL}`)
-        .then((response)=> {
-                console.log(response.data.shipName);
-                this.setState({shipNames: response.data.shipName},{shipImos:response.data.shipImo});
-            });
+        .then(response=> console.log(response.data))
+        .catch(error=>console.log(error))
+                // console.log(response.data[0].shipImo);
+                // this.setState({shipNames: response.data['shipName']},{shipImos:response.data['shipImo']});
+            
     };
     
     // downtime(){
