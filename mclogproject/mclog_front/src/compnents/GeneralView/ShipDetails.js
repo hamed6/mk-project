@@ -14,6 +14,7 @@ class GeneralView extends React.Component{
             shipResponse:[],
             shipScenario:"",
             shipNames:[],
+            shipImo:[],
             logCategory:["Warning","Info","Fault","Deactivated"],
             scenarioDescription:
             [
@@ -66,8 +67,7 @@ class GeneralView extends React.Component{
     componentDidMount(){
         axios.get(`${baseURL}`)
         .then((response)=> {
-                this.setState({shipNames: response.data
-                });
+                this.setState({shipNames: response.data.shipName},{shipImo:response.data.shipImo});
             });
     };
     
@@ -113,7 +113,10 @@ class GeneralView extends React.Component{
                                 Ship IMO
                             </label>
                             <select name='IMO'>
-                                <option>From database</option>
+                                {   this.state.shipImo.map((imo)=>(
+                                    <option key={imo}>{imo}</option>
+                                ))
+                                    }
                             </select>
                         </div>
 
