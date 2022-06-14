@@ -64,29 +64,16 @@ class GeneralView extends React.Component{
         this.handleChange=this.handleChange.bind(this);
     };
     
-    // this.setState({shipNames:response.data.shipName})
+    
     componentDidMount(){
         axios.get(`${baseURL}`)
-        .then(response=> console.log(response.data))
+        .then(response=> this.setState({shipImos:response.data}))
         .catch(error=>console.log(error))
                 // console.log(response.data[0].shipImo);
                 // this.setState({shipNames: response.data['shipName']},{shipImos:response.data['shipImo']});
             
     };
     
-    // downtime(){
-    //     axios.get(`${baseURL}/downtime`)
-    //     .then((response)=>{
-    //         this.setState({shipResponse:response.data})
-    //     })
-    // };
-
-    // extendOpenPosition(){
-    //     axios.get(`${baseURL}/extendopen`)
-    //     .then((response)=>{
-    //         this.setState({shipResponse:response.data})
-    //     })
-    // };
 
     handleChange(event){
         this.setState({shipScenario:event.target.value});
@@ -117,7 +104,7 @@ class GeneralView extends React.Component{
                             </label>
                             <select name='IMO'>
                                 {   this.state.shipImos.map((imo)=>(
-                                    <option key={imo}>{imo}</option>
+                                    <option key={imo} >{imo}</option>
                                 ))
                                     }
                             </select>

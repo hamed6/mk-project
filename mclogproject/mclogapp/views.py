@@ -116,26 +116,14 @@ class LogFileProcess(APIView):
 
 #----------------------------------------------------------
 class SearchShipDetails(APIView):
-
-    # def get_table_name(self):
-    #     table_name='mclog_db.mclogapp_shipdetails'
-    #     return table_name
-
+    
     def __init__(self):
         pass
 
-    # def get(self, imo):
-        """
-        find ship with give IMO from all IMO tables, 
-        then make direct query to group by date.
-        Return date by month.
-        """
-        # pass
     def get(self, request):
         ships= ShipDetails.objects.all()
-        serializer=CheckImoSerializer(ships, many=True)
-        print(ships)
-        return Response(serializer.data)
+        ship_imo=[ship.shipImo for ship in ships]
+        return Response(ship_imo)
 
     @api_view(('GET',))
     def ship_names(self):
@@ -144,9 +132,6 @@ class SearchShipDetails(APIView):
         serializer=CheckImoSerializer(ships, many=True)
         print(ships)
         return Response(serializer.data)
-
-
-
         
     def create_cursor(query):
         with connection.cursor() as curs:
