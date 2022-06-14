@@ -154,7 +154,8 @@ class SearchShipDetails(APIView):
         return Response(result)
         
     @api_view(('GET',))
-    def system_downtime(self):
+    def system_downtime( self):
+        
         pass_imo=1
         query=('''select TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) as "System was down in hour" ,
