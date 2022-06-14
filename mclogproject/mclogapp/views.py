@@ -134,7 +134,7 @@ class SearchShipDetails(APIView):
     def get(self, request):
         ships= ShipDetails.objects.all()
         serializer=CheckImoSerializer(ships, many=True)
-        # print(ships)
+        print(ships)
         return Response(serializer.data)
 
     @api_view(('GET',))
