@@ -1,4 +1,6 @@
+from cmath import log
 import datetime as dt
+from distutils.log import Log
 
 from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -135,22 +137,34 @@ class SearchShipDetails(APIView):
         
     def create_cursor(query):
         with connection.cursor() as curs:
+            print('-------------', query)
             curs.execute(query)
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
 
     @api_view(('GET',))
+    def system_donwtime_django(self):
+        res=ShipDetails.objects.raw("""
+        SELECT count( *) 
+        from mclog_db.mclogapp_shiplogs
+        where logImo_id=%(imo)s""", params={'imo':2})
+        
+        result=SearchShipDetails.create_cursor(res)
+        return Response(result)
+        
+    @api_view(('GET',))
     def system_downtime(self):
-        query=("""select TIMESTAMPDIFF(hour,  
+        pass_imo=1
+        query=('''select TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) as "System was down in hour" ,
                 logDateTime as "System start" , 
                 str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" ) as "System shutdown"
                 from  mclog_db.mclogapp_shiplogs  
-                where logCategory = 'Info' and logDescription like'PLC Powered ON%' and  TIMESTAMPDIFF(hour,  
-                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) >1; """)
-        
-        result=SearchShipDetails.create_cursor(query)
+                where logImo_id ={imo} and logCategory = 'Info' and logDescription like'PLC Powered ON%' and  TIMESTAMPDIFF(hour,  
+                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) >1; ''')
+        query=query.format(imo=pass_imo)
+        result=SearchShipDetails.create_cursor(query )
         return Response (result)
 
 

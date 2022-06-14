@@ -69,15 +69,11 @@ class GeneralView extends React.Component{
         axios.get(`${baseURL}`)
         .then(response=> this.setState({shipImos:response.data}))
         .catch(error=>console.log(error))
-                // console.log(response.data[0].shipImo);
-                // this.setState({shipNames: response.data['shipName']},{shipImos:response.data['shipImo']});
-            
     };
     
 
     handleChange(event){
         this.setState({shipScenario:event.target.value});
-        // console.log(this.state.shipScenario);
         axios.get(`${baseURL}/${event.target.value}`)
         .then((response)=>{
             this.setState({shipResponse:response.data})

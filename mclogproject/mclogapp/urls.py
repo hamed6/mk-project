@@ -10,4 +10,5 @@ urlpatterns=[
     path('extendopen', SearchShipDetails.operating_to_extend_open_position, name="exten open position"),
     path('calibration', SearchShipDetails.calibration_mismatch, name="calibration difference"),
     path('stall', SearchShipDetails.motor_stall_fault_manual_mode, name="stall fault"),
+    path('dt', SearchShipDetails.system_donwtime_django, name="stall fault"),
 ]
