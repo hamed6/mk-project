@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.db import connection
+from numpy import empty
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -135,37 +136,40 @@ class SearchShipDetails(APIView):
         print(ships)
         return Response(serializer.data)
         
-    def create_cursor(query):
+    def create_cursor( query, imo=""):
         with connection.cursor() as curs:
-            print('-------------', query)
-            curs.execute(query)
+            curs.execute(query, [imo])
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
 
     @api_view(('GET',))
     def system_donwtime_django(self):
-        res=ShipDetails.objects.raw("""
-        SELECT count( *) 
-        from mclog_db.mclogapp_shiplogs
-        where logImo_id=%(imo)s""", params={'imo':2})
+        imo="2"
+        query=(" select count(*) from mclog_db.mclogapp_shiplogs where logImo_id=%s;")
+        # print(query)
+        # cursor=connection.cursor()
+        # cursor.execute(query, [imo])
+        # result=cursor.fetchone()
+        # cursor.close()
+        # print  ('-------------', result) 
         
-        result=SearchShipDetails.create_cursor(res)
+        result =SearchShipDetails.create_cursor(query, imo)
         return Response(result)
-        
+
     @api_view(('GET',))
     def system_downtime( self):
         
-        pass_imo=1
+        pass_imo="1"
         query=('''select TIMESTAMPDIFF(hour,  
-                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) as "System was down in hour" ,
+                str_to_date( substring(logDescription, 36,19 ), "%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) as "System was down in hour" ,
                 logDateTime as "System start" , 
-                str_to_date(substring(logDescription, 36,19 ), "%d.%m.%Y %H:%i:%s" ) as "System shutdown"
+                str_to_date(substring(logDescription, 36,19 ), "%%d.%%m.%%Y %%H:%%i:%%s" ) as "System shutdown"
                 from  mclog_db.mclogapp_shiplogs  
-                where logImo_id ={imo} and logCategory = 'Info' and logDescription like'PLC Powered ON%' and  TIMESTAMPDIFF(hour,  
-                str_to_date( substring(logDescription, 36,19 ),"%d.%m.%Y %H:%i:%s" ), logDateTime ) >1; ''')
-        query=query.format(imo=pass_imo)
-        result=SearchShipDetails.create_cursor(query )
+                where  logImo_id =%s and logCategory = 'Info' and logDescription like'PLC Powered ON%%' and  TIMESTAMPDIFF(hour,  
+                str_to_date( substring(logDescription, 36,19 ),"%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) >1; ''')
+        
+        result=SearchShipDetails.create_cursor(query, pass_imo)
         return Response (result)
 
 
