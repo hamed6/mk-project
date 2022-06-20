@@ -158,9 +158,8 @@ class SearchShipDetails(APIView):
         return Response(result)
 
     @api_view(('GET',))
-    def system_downtime( self):
-        
-        pass_imo="1"
+    def system_downtime( self, imo):
+        # pass_imo="1"
         query=('''select TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ), "%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) as "System was down in hour" ,
                 logDateTime as "System start" , 
@@ -169,7 +168,7 @@ class SearchShipDetails(APIView):
                 where  logImo_id =%s and logCategory = 'Info' and logDescription like'PLC Powered ON%%' and  TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ),"%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) >1; ''')
         
-        result=SearchShipDetails.create_cursor(query, pass_imo)
+        result=SearchShipDetails.create_cursor(query, imo)
         return Response (result)
 
 
