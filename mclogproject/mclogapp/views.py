@@ -138,7 +138,10 @@ class SearchShipDetails(APIView):
         
     def create_cursor( query, imo=""):
         with connection.cursor() as curs:
-            curs.execute(query, [imo])
+            if imo != "":
+                curs.execute(query, [imo])
+            else:
+                curs.execute(query)
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
