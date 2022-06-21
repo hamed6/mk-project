@@ -5,35 +5,35 @@ import axios from 'axios'
 
 const baseURL="http://127.0.0.1:8000";
 
-
 class GeneralView extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            shipResponse:[],
-            shipScenario:"",
-            shipNames:[],
-            getShipImos:[],
-            setShipImo:[],
+            shipResponse:[],// server response
+            getShipImos:[], // server response
+            shipScenario:"", // scenairo string to for the req
+            setShipImo:[], // single imo for the req
+            shipNames:[], // server response
             logCategory:["Warning","Info","Fault","Deactivated"],
             scenarioDescription:
             [
             "How often the system is powered off and how long it stays without power.",
             "How often they continue operating to ext open position.",
             "Cases where position calibration is started but never done correctly.",
-        ]
-    };    
+            ]
+        };    
           this.handleChange=this.handleChange.bind(this);
     };
     
-    
+    // to get imo from db
     componentDidMount(){
         axios.get(`${baseURL}`)
         .then(response=> this.setState({getShipImos:response.data}))
         .catch(error=>console.log(error))
     };
     
-
+    // to pass req to backend and get res from db
+    // here need to get single imo + single scenario + date then create req
     handleChange(event){
         this.setState({shipScenario:event.target.value});
         axios.get(`${baseURL}/${event.target.value}`)
