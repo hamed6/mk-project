@@ -35,11 +35,14 @@ class GeneralView extends React.Component{
     // to pass req to backend and get res from db
     // here need to get single imo + single scenario + date then create req
     handleChange(event){
-        this.setState({shipScenario:event.target.value});
-        axios.get(`${baseURL}/${event.target.value}`)
-        .then((response)=>{
-            this.setState({shipResponse:response.data})
-        })
+        event.preventDefault();
+        let d=event.target.value
+        console.log(d);
+        // this.setState({shipScenario:event.target.value});
+        // axios.get(`${baseURL}/${event.target.value}`)
+        // .then((response)=>{
+        //     this.setState({shipResponse:response.data})
+        // })
     };
 
     render()
@@ -53,45 +56,52 @@ class GeneralView extends React.Component{
                             <h2>Log file statistics</h2>
                         </div>
                         
-                         <div className='p-2 g-1 border bg-light'>
-                            <label>
-                                Ship IMO
-                            </label>
-                            <select name='IMO'>
-                                {   this.state.getShipImos.map((imo)=>(
-                                    <option key={imo} >{imo}</option>
-                                ))
-                                    }
-                            </select>
-                        </div>
+                        <form action='submit' onSubmit={this.handleChange}>
+                            <div className='p-2 g-1 border bg-light'>
+                                <label>
+                                    Ship IMO
+                                </label>
+                                <select name='IMO'>
+                                    {   this.state.getShipImos.map((imo)=>(
+                                        <option key={imo} >{imo}</option>
+                                    ))
+                                        }
+                                </select>
+                            </div>
 
-                        <div className='p-2 g-1 border bg-info shadow p-3 mb-1 bg-body rounded'>
-                            <label>
-                                Scenario query
-                            </label>
-                            <select name='Scenario' id="listOfScenairo" onChange={this.handleChange}>
-                                <option value="downtime">System downtime</option>
-                                <option value="extendopen">Extend open position</option>
-                                <option value="calibration">Calibration difference</option>
-                                <option value="stall">Stall fault</option>
-                            </select>
-                        </div>
-                    
-                        <div className='p-2 g-1 border bg-light'>
-                            <label>
-                                Date From
-                            </label>
-                            <input type="date"></input>
-                            <label>To:</label>
-                            <input type="date"></input>
-                        </div>
+                            <div className='p-2 g-1 border bg-info shadow p-3 mb-1 bg-body rounded'>
+                                <label>
+                                    Scenario query
+                                </label>
+                                <select name='Scenario' id="listOfScenairo">
+                                    <option value="downtime">System downtime</option>
+                                    <option value="extendopen">Extend open position</option>
+                                    <option value="calibration">Calibration difference</option>
+                                    <option value="stall">Stall fault</option>
+                                </select>
+                            </div>
+                        
+                            <div className='p-2 g-1 border bg-light'>
+                                <label>
+                                    Date From
+                                </label>
+                                <input type="date"></input>
+                                <label>To:</label>
+                                <input type="date"></input>
+                            </div>
+                            
+                            <div>
+                                <button type='submit' name='search' id='btnSearch'  >Search</button>
+                            </div>
+
+                        </form>
 
                         <div className='p-2 g-1 border shadow-sm p-3 mb-5 bg-body rounded'>
-                        <ol>
-                            {this.state.shipResponse.map((res)=>(
-                                <li key={this.state.shipResponse.indexOf(res)} >{res.toString()}</li>    
-                            ))
-                            }
+                            <ol>
+                                {this.state.shipResponse.map((res)=>(
+                                    <li key={this.state.shipResponse.indexOf(res)} >{res.toString()}</li>    
+                                ))
+                                }
                             </ol>
                         </div>     
 
