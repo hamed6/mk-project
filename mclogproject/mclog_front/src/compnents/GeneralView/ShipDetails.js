@@ -9,40 +9,49 @@ class GeneralView extends React.Component{
     constructor(props){
         super(props);
         this.state={
+            shipScenario:"", // scenairo string to for the req
             shipResponse:[],// server response
             getShipImos:[], // server response
-            shipScenario:"", // scenairo string to for the req
             setShipImo:[], // single imo for the req
             shipNames:[], // server response
             logCategory:["Warning","Info","Fault","Deactivated"],
             scenarioDescription:
             [
-            "How often the system is powered off and how long it stays without power.",
-            "How often they continue operating to ext open position.",
-            "Cases where position calibration is started but never done correctly.",
-            ]
+                "How often the system is powered off and how long it stays without power.",
+                "How often they continue operating to ext open position.",
+                "Cases where position calibration is started but never done correctly.",
+            ], 
+            scenarioShortId:
+            [
+                "downtime",
+                "extendopen",
+                "calibration",
+                "stall",
+            ],
         };    
-          this.handleChange=this.handleChange.bind(this);
+          this.handleSubmit=this.handleSubmit.bind(this);
     };
     
     // to get imo from db
     componentDidMount(){
         axios.get(`${baseURL}`)
-        .then(response=> this.setState({getShipImos:response.data}))
+        .then(response=> this.setState({getShipImos:response.data, setShipImo:this.state.getShipImos[0]}))
+        .then(this.setState({shipScenario:this.state.scenarioShortId[0]}))
         .catch(error=>console.log(error))
     };
     
     // to pass req to backend and get res from db
     // here need to get single imo + single scenario + date then create req
-    handleChange(event){
+    handleSubmit(event){
         event.preventDefault();
-        let d=event.target.value
-        console.log(d);
+        let scenarioID=document.getElementById("listOfScenairo").value
+        let shipImo=document.getElementById("lisOfImo").value
+        // console.log(`${baseURL}/${shipImo}/${scenarioID}`);
         // this.setState({shipScenario:event.target.value});
-        // axios.get(`${baseURL}/${event.target.value}`)
-        // .then((response)=>{
-        //     this.setState({shipResponse:response.data})
-        // })
+        axios.get(`${baseURL}/${shipImo}/${scenarioID}`)
+        .then((response)=>{
+            this.setState({shipResponse:response.data})
+        })
     };
 
     render()
@@ -56,12 +65,12 @@ class GeneralView extends React.Component{
                             <h2>Log file statistics</h2>
                         </div>
                         
-                        <form action='submit' onSubmit={this.handleChange}>
+                        <form action='submit' onSubmit={this.handleSubmit}>
                             <div className='p-2 g-1 border bg-light'>
                                 <label>
                                     Ship IMO
                                 </label>
-                                <select name='IMO'>
+                                <select name='IMO' id="lisOfImo">
                                     {   this.state.getShipImos.map((imo)=>(
                                         <option key={imo} >{imo}</option>
                                     ))
@@ -74,10 +83,10 @@ class GeneralView extends React.Component{
                                     Scenario query
                                 </label>
                                 <select name='Scenario' id="listOfScenairo">
-                                    <option value="downtime">System downtime</option>
-                                    <option value="extendopen">Extend open position</option>
-                                    <option value="calibration">Calibration difference</option>
-                                    <option value="stall">Stall fault</option>
+                                    <option value={this.state.scenarioShortId[0]}>System downtime</option>
+                                    <option value={this.state.scenarioShortId[1]}>Extend open position</option>
+                                    <option value={this.state.scenarioShortId[2]}>Calibration difference</option>
+                                    <option value={this.state.scenarioShortId[3]}>Stall fault</option>
                                 </select>
                             </div>
                         
