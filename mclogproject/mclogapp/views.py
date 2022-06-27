@@ -1,9 +1,10 @@
 import datetime as dt
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.db import connection
+from numpy import searchsorted
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -27,6 +28,8 @@ class SearchShipDetails(APIView):
         ship_imo=[ship.shipImo for ship in ships]
         return Response(ship_imo)
 
+    
+
     @api_view(('GET',))
     def ship_names(self):
         # ships =[ship.shipName, ship.shipImo for ship in ShipDetails.objects.all()]
@@ -43,6 +46,14 @@ class SearchShipDetails(APIView):
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
+    
+    def find_ship_imo(id):
+        try:
+            get_ship=ShipDetails.objects.get(shipImo=id)
+            return (get_ship)
+        except ShipDetails.DoesNotExist:
+            raise Http404
+            
 
     @api_view(('GET',))
     def system_donwtime_django(self):
@@ -53,7 +64,9 @@ class SearchShipDetails(APIView):
 
     @api_view(('GET',))
     def system_downtime( self, imo):
-        get_imo_id=ShipDetails.objects.get(shipImo=imo)
+        # get_imo_id=ShipDetails.objects.get(shipImo=imo)
+        # ship_id=SearchShipDetails.find_ship_imo(imo)
+        ship_id=SearchShipDetails.find_ship_imo(imo)
         query=('''select TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ), "%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) as "System was down in hour" ,
                 logDateTime as "System start" , 
@@ -62,7 +75,7 @@ class SearchShipDetails(APIView):
                 where  logImo_id =%s and logCategory = 'Info' and logDescription like'PLC Powered ON%%' and  TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ),"%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) >1; ''')
         
-        result=SearchShipDetails.create_cursor(query, get_imo_id.id)
+        result=SearchShipDetails.create_cursor(query, ship_id.id)
         return Response (result)
 
 

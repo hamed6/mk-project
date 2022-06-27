@@ -1,4 +1,4 @@
-from urllib import request
+# from urllib import request
 from django.urls import  path
 from . import views
 from .views import LogFileProcess, SearchShipDetails
