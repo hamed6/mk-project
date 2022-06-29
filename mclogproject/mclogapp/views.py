@@ -37,7 +37,7 @@ class SearchShipDetails(APIView):
         serializer=CheckImoSerializer(ships, many=True)
         return Response(serializer.data)
         
-    def create_cursor( query, imo=""):
+    def create_cursor_one_imo( query, imo=""):
         with connection.cursor() as curs:
             if imo != "":
                 curs.execute(query, [imo])
@@ -46,6 +46,15 @@ class SearchShipDetails(APIView):
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
+
+    def create_cursor_two_imo( query, imo_first="", imo_second=""):
+        print(imo_first, imo_second)
+        with connection.cursor() as curs:
+            curs.execute(query, [imo_first,imo_second])
+            columns=[col[0] for col in curs.description]
+            result=[ zip(columns,  row)  for row in curs.fetchall()]
+        return (result)
+    
     
     def find_ship_imo(id):
         try:
@@ -53,14 +62,7 @@ class SearchShipDetails(APIView):
             return (get_ship)
         except ShipDetails.DoesNotExist:
             raise Http404
-            
 
-    @api_view(('GET',))
-    def system_donwtime_django(self):
-        imo="2"
-        query=(" select count(*) from mclog_db.mclogapp_shiplogs where logImo_id=%s;")
-        result =SearchShipDetails.create_cursor(query, imo)
-        return Response(result)
 
     @api_view(('GET',))
     def system_downtime( self, imo):
@@ -72,26 +74,27 @@ class SearchShipDetails(APIView):
                 logDateTime as "System start" , 
                 str_to_date(substring(logDescription, 36,19 ), "%%d.%%m.%%Y %%H:%%i:%%s" ) as "System shutdown"
                 from  mclog_db.mclogapp_shiplogs  
-                where  logImo_id =%s and logCategory = 'Info' and logDescription like'PLC Powered ON%%' and  TIMESTAMPDIFF(hour,  
+                where  logImo_id =%s and  logCategory = 'Info' and logDescription like'PLC Powered ON%%' and  TIMESTAMPDIFF(hour,  
                 str_to_date( substring(logDescription, 36,19 ),"%%d.%%m.%%Y %%H:%%i:%%s" ), logDateTime ) >1; ''')
         
-        result=SearchShipDetails.create_cursor(query, ship_id.id)
+        result=SearchShipDetails.create_cursor_one_imo(query, ship_id.id)
         return Response (result)
 
 
     @api_view(('GET',))
-    def operating_to_extend_open_position(self):
+    def operating_to_extend_open_position(self, imo):
+        ship_id=SearchShipDetails.find_ship_imo(imo)
         query=("""
             with opp AS 
             (
             select *, substr( logDescription ,1,4) as "hcid"
             from mclog_db.mclogapp_shiplogs   
-            where logCategory = 'Info'  and logDescription like '%Stopped automatic mode open position' 
+            where logImo_id =%s and logCategory = 'Info'  and logDescription like '%%Stopped automatic mode open position' 
             ) 
             , exp as (
             select *, substr( logDescription ,1,4) as "hcid"
             from mclog_db.mclogapp_shiplogs   
-            where logCategory = 'Info'  and logDescription like  '%ext open position' 
+            where logImo_id =%s and  logCategory = 'Info'  and logDescription like  '%%ext open position' 
             )
 
             select (
@@ -102,47 +105,49 @@ class SearchShipDetails(APIView):
             ) as "Number of leaving panel in open position longer than 15mins"
             ;
         """)
-        result=SearchShipDetails.create_cursor(query)
+        result=SearchShipDetails.create_cursor_two_imo(query, ship_id.id ,ship_id.id)
         return Response(result)
 
     @api_view(('GET',))
-    def calibration_mismatch(self):
+    def calibration_mismatch(self, imo):
+        ship_id=SearchShipDetails.find_ship_imo(imo)
         query=("""
         select  *, clstarted.`Calibration started` - cldone.`Calibration done`   as "Incomplete calibration" from 
             (
             select substr(logDescription, 1,4) as HatchcoverID, count(logDescription) as "Calibration started" 
             from mclog_db.mclogapp_shiplogs 
-            where logCategory="Info" and logDescription like "%calibration started%" group by logDescription
+            where logImo_id =%s and logCategory="Info" and logDescription like "%%calibration started%%" group by logDescription
             )  as clstarted
             join 
             (
             select substr(logDescription, 1,4) as HatchcoverID, count(logDescription) as "Calibration done" 
             from mclog_db.mclogapp_shiplogs 
-            where logCategory="Info" and logDescription like "%calibration done%" group by logDescription
+            where logImo_id =%s and logCategory="Info" and logDescription like "%%calibration done%%" group by logDescription
             ) as cldone
             on clstarted.HatchcoverID = cldone.HatchcoverID
             order by 1;
         """)
-        result=SearchShipDetails.create_cursor(query)
+        result=SearchShipDetails.create_cursor_two_imo(query, ship_id.id ,ship_id.id)
         return Response (result)
 
     @api_view(('GET',))
-    def motor_stall_fault_manual_mode(self):
+    def motor_stall_fault_manual_mode(self, imo):
+        ship_id=SearchShipDetails.find_ship_imo(imo)
         query=("""
         select info.closingDate  as "Fault date"
             from(
             select *, date(logDateTime) as closingDate 
             from mclog_db.mclogapp_shiplogs 
-            where logCategory = "Info" and logDescription like "%Closing manual mode%" order by id
+            where logImo_id =%s and logCategory = "Info" and logDescription like "%%Closing manual mode%%" order by id
             ) as info join (
             select *, date(logDateTime) as stallDate  
             from mclog_db.mclogapp_shiplogs 
-            where logCategory = "Fault" and logDescription like "%Motor stall%" order by id
+            where logImo_id =%s and logCategory = "Fault" and logDescription like "%%Motor stall%%" order by id
             ) as fault
             on info.closingDate = fault.stallDate
             group by info.closingDate order by 1;
         """)
-        result = SearchShipDetails.create_cursor(query)
+        result=SearchShipDetails.create_cursor_two_imo(query, ship_id.id ,ship_id.id)
         return Response(result)
 
     def pushing_against_panels(self):
@@ -150,7 +155,13 @@ class SearchShipDetails(APIView):
 
     def motor_heating_duration(self):
         pass
-
+    
+    # @api_view(('GET',))
+    # def system_donwtime_django(self):
+    #     imo="2"
+    #     query=(" select count(*) from mclog_db.mclogapp_shiplogs where logImo_id=%s;")
+    #     result =SearchShipDetails.create_cursor_one_imo(query, imo)
+    #     return Response(result)
 #----------------------------------------------------------
 class LogFileProcess(APIView):
     def __init__(self) -> None:
