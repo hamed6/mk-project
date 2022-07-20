@@ -1,17 +1,17 @@
 import datetime as dt
 
-from django.http import Http404, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render
 from django.db import connection
-
-
+from django.http import Http404, HttpResponse
+from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from .forms import UploadLogFile
 from .models import ShipDetails, ShipLogs
 from .serializers import CheckImoSerializer
+
 
 #----------------------------------------------------------
 def index(request):
