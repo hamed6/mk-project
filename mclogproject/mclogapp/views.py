@@ -47,10 +47,9 @@ class SearchShipDetails(APIView):
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
 
-    def create_cursor_two_imo( query, imo_first="", imo_second=""):
-        print(imo_first, imo_second)
+    def create_cursor_two_imo( query, first_id="", second_id=""):
         with connection.cursor() as curs:
-            curs.execute(query, [imo_first,imo_second])
+            curs.execute(query, [first_id,second_id])
             columns=[col[0] for col in curs.description]
             result=[ zip(columns,  row)  for row in curs.fetchall()]
         return (result)
