@@ -1,2 +1,6 @@
 mclogproject/mclogproject/settings.py
 node_modules
+
+*.csv
+**__pycache__
+.ipynb_checkpoints
