@@ -18,6 +18,14 @@ def index(request):
     return HttpResponse('from View')
 
 #----------------------------------------------------------
+class ListOfShip(APIView):
+    @api_view(('GET',))
+    def get_all_ships(self):
+        all_ships=ShipDetails.objects.all()
+        serializer=CheckImoSerializer(all_ships, many=True)
+        return Response(serializer.data)
+#----------------------------------------------------------
+
 class SearchShipDetails(APIView):
     
     def __init__(self):

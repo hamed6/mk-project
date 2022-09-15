@@ -1,7 +1,7 @@
 # from urllib import request
 from django.urls import  path
 from . import views
-from .views import LogFileProcess, SearchShipDetails
+from .views import LogFileProcess, SearchShipDetails, ListOfShip
 
 urlpatterns=[
     path('home',  LogFileProcess.as_view() , name="home"),
@@ -11,4 +11,5 @@ urlpatterns=[
     path('<int:imo>/calibration', SearchShipDetails.calibration_mismatch, name="calibration difference"),
     path('<int:imo>/stall', SearchShipDetails.motor_stall_fault_manual_mode, name="stall fault"),
     # path('dt', SearchShipDetails.system_donwtime_django, name="stall fault"),
+    path('shiplist', ListOfShip.get_all_ships , name="all_ships" )
 ]
